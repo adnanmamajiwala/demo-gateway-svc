@@ -1,13 +1,15 @@
 package com.sample;
 
-import com.sample.configurations.ApplicationResourceConfig;
-import com.sample.configurations.filters.BypassGenericFilter;
-import com.sample.v1.servlets.ExistingV1Servlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
+
+import com.sample.configurations.ApplicationResourceConfig;
+import com.sample.configurations.filters.BypassGenericFilter;
+import com.sample.configurations.filters.ServletAddRemoveFilter;
+import com.sample.v1.servlets.ExistingV1Servlet;
 
 public class Main {
 
@@ -18,17 +20,15 @@ public class Main {
     }
 
     private static Server createServer() throws Exception {
-        Server server = new Server(8080);
+        Server server = new Server(8090);
 
         ServletContextHandler context = new ServletContextHandler(server, "/");
-        ServletHolder servlet = new ServletHolder(new ServletContainer(new ApplicationResourceConfig(context)));
-        servlet.setInitOrder(0);
+        ServletHolder servletHolder = new ServletHolder(new ServletContainer(new ApplicationResourceConfig(context)));
+        servletHolder.setInitOrder(0);
 
-        context.addServlet(servlet, "/v2/*");
+        context.addServlet(servletHolder, "/v2/*");
         context.addServlet(ExistingV1Servlet.class, "/v1/*");
-
         context.addFilter(new FilterHolder(new BypassGenericFilter()), "/*", null);
-
         return server;
     }
 
